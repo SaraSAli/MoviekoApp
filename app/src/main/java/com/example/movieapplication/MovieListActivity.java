@@ -2,16 +2,18 @@ package com.example.movieapplication;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.movieapplication.model.MovieModel;
 import com.example.movieapplication.request.MyService;
 import com.example.movieapplication.response.MovieSearchResponse;
 import com.example.movieapplication.utils.Credentials;
 import com.example.movieapplication.utils.MovieApi;
+import com.example.movieapplication.viewmodels.MovieListViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +27,8 @@ import retrofit2.Response;
 public class MovieListActivity extends AppCompatActivity {
 
     //private ActivityMovieListBinding binding;
-    Button btn;
+    private Button btn;
+    private MovieListViewModel movieListViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,14 +40,18 @@ public class MovieListActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_movie_list);
         btn = findViewById(R.id.test_button);
-        btn.setOnClickListener(new View.OnClickListener() {
+
+        movieListViewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
+
+    }
+
+    private void observeAnyChange() {
+        movieListViewModel.getMovieModel().observe(this, new Observer<List<MovieModel>>() {
             @Override
-            public void onClick(View v) {
-                getRetrofitResponseAccordingToId();
+            public void onChanged(List<MovieModel> dataModels) {
+                //Observe anything
             }
         });
-
-
     }
 
     private void getRetrofitResponse() {
