@@ -2,12 +2,13 @@ package com.example.movieapplication;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.movieapplication.databinding.ActivityMovieListBinding;
 import com.example.movieapplication.model.MovieModel;
 import com.example.movieapplication.request.MyService;
 import com.example.movieapplication.response.MovieSearchResponse;
@@ -26,32 +27,45 @@ import retrofit2.Response;
 
 public class MovieListActivity extends AppCompatActivity {
 
-    //private ActivityMovieListBinding binding;
-    private Button btn;
+    private ActivityMovieListBinding binding;
     private MovieListViewModel movieListViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-/*        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        binding = ActivityMovieListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.progressCircular.setVisibility(View.INVISIBLE);*/
+        binding.progressCircular.setVisibility(View.INVISIBLE);
 
-        setContentView(R.layout.activity_movie_list);
-        btn = findViewById(R.id.test_button);
 
         movieListViewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
+
+        observeAnyChange();
+
+        binding.testButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchMovieApi("Action", 1);
+            }
+        });
 
     }
 
     private void observeAnyChange() {
         movieListViewModel.getMovieModel().observe(this, new Observer<List<MovieModel>>() {
             @Override
-            public void onChanged(List<MovieModel> dataModels) {
+            public void onChanged(List<MovieModel> movieModels) {
                 //Observe anything
+                for (MovieModel movieModel : movieModels) {
+                    Log.d("TAG", "onChanged() called with: movieModels = [" + movieModel.getTitle() + "]");
+                }
             }
         });
+    }
+
+    private void searchMovieApi(String query, int pageNumber) {
+        movieListViewModel.searchMovieApi(query, pageNumber);
     }
 
     private void getRetrofitResponse() {
