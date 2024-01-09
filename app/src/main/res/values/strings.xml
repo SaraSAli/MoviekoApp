@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Movie Application</string>
+    <string name="movie_category">Movie Category</string>
+    <string name="movie_duration">Movie Duration</string>
 </resources>
