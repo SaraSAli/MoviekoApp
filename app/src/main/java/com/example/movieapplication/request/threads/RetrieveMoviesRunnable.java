@@ -1,6 +1,7 @@
 package com.example.movieapplication.request.threads;
 
 import static com.example.movieapplication.request.MovieApiClient.mMovies;
+import static com.example.movieapplication.request.MovieApiClient.movieLoading;
 
 import android.util.Log;
 
@@ -18,12 +19,12 @@ import retrofit2.Response;
 
 public class RetrieveMoviesRunnable implements Runnable {
 
-
     private String query;
     private int pageNumber;
     boolean cancelRequest;
 
     public RetrieveMoviesRunnable(String query, int pageNumber) {
+        movieLoading.postValue(true);
         this.query = query;
         this.pageNumber = pageNumber;
         cancelRequest = false;
@@ -32,11 +33,13 @@ public class RetrieveMoviesRunnable implements Runnable {
     @Override
     public void run() {
         try {
+            movieLoading.postValue(true);
             Response response = getMovies(query, pageNumber).execute();
-
-            if (cancelRequest) return;
-
+            if (cancelRequest) {
+                return;
+            }
             if (response.code() == 200) {
+                movieLoading.postValue(false);
                 List<MovieModel> list = new ArrayList<>(((MovieSearchResponse) response.body()).getMovies());
                 if (pageNumber == 1) {
                     //sending to live data
@@ -50,23 +53,22 @@ public class RetrieveMoviesRunnable implements Runnable {
 
                 }
             } else {
+                movieLoading.postValue(false);
                 String error = response.errorBody().string();
                 Log.v("TAG", "Error " + error);
                 mMovies.postValue(null);
             }
         } catch (IOException e) {
+            movieLoading.postValue(false);
             e.printStackTrace();
         }
-
-
     }
 
+    //Trending Query
     private Call<MovieSearchResponse> getMovies(String query, int pageNumber) {
-        return MyService.getMovieApi().searchMovie(
+        return MyService.getMovieApi().getTrending(
                 Credentials.MY_API_KEY,
-                query,
-                pageNumber
-        );
+                pageNumber);
     }
 
     private void cancelRequest() {

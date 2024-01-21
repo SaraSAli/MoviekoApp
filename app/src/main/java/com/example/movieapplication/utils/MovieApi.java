@@ -18,6 +18,22 @@ public interface MovieApi {
             @Query("page") int page
     );
 
+    //trending
+    @GET("/3/movie/popular")
+    Call<MovieSearchResponse> getTrending(
+            @Query("api_key") String key,
+            @Query("page") int page
+
+    );
+
+    //now-playing
+    @GET("/3/movie/now_playing")
+    Call<MovieSearchResponse> getNowPlaying(
+            @Query("api_key") String key,
+            @Query("page") int page
+
+    );
+
     //http://api.themoviedb.org/3/movie/550?api_key=b43b43778791374756a89f02dba27901
     @GET("/3/movie/{movie_id}?")
     Call<MovieModel> getMovie(

@@ -12,13 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movieapplication.adapter.MovieRecyclerViewAdapter;
+import com.example.movieapplication.adapter.NowPlayingMoviesAdapter;
 import com.example.movieapplication.databinding.ActivityMovieListBinding;
+import com.example.movieapplication.databinding.LoadingLayoutBinding;
 import com.example.movieapplication.model.MovieModel;
 import com.example.movieapplication.request.MyService;
 import com.example.movieapplication.response.MovieSearchResponse;
 import com.example.movieapplication.utils.Credentials;
 import com.example.movieapplication.utils.MovieApi;
 import com.example.movieapplication.viewmodels.MovieListViewModel;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,8 +35,10 @@ import retrofit2.Response;
 public class MovieListActivity extends AppCompatActivity {
 
     private ActivityMovieListBinding binding;
+    private LoadingLayoutBinding loadingBinding;
 
     private MovieRecyclerViewAdapter movieRecyclerViewAdapter;
+    private NowPlayingMoviesAdapter nowPlayingMoviesAdapter;
     private MovieListViewModel movieListViewModel;
 
     @Override
@@ -45,11 +50,69 @@ public class MovieListActivity extends AppCompatActivity {
 
         movieListViewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
 
+
         initRecyclerView();
-        observeAnyChange();
+        initViewPager();
 
-        searchMovieApi("fast", 1);
+        //calling the observers
+        observeMovieTrendingChange();
+        observeMovieNowPlayingChange();
 
+        //api Calls
+        searchMovieApi("", 1);
+        searchMovieApiNowPlaying(1);
+
+        /*movieListViewModel.getLoading().observe(this, loading -> {
+            if (loading) {
+                loadingBinding.loadingAnimation.setVisibility(View.VISIBLE);
+            } else {
+                loadingBinding.loadingAnimation.setVisibility(View.GONE);
+            }
+        });*/
+
+    }
+
+    //observing changes
+    private void observeMovieTrendingChange() {
+        movieListViewModel.getMovies().observe(this, new Observer<List<MovieModel>>() {
+            @Override
+            public void onChanged(List<MovieModel> movieModels) {
+                // observe any data change
+                if (movieModels != null) {
+                    for (MovieModel movieModel : movieModels) {
+                        //get the data in log
+                        Log.d("TAG", "observeMovieTrendingChange onChanged() called with: movieModels = [" + movieModel.getTitle() + "]");
+                        movieRecyclerViewAdapter.setmMovies(movieModels);
+                    }
+                }
+            }
+        });
+    }
+
+    private void observeMovieNowPlayingChange() {
+        movieListViewModel.getNowPlaying().observe(this, new Observer<List<MovieModel>>() {
+            @Override
+            public void onChanged(List<MovieModel> movieModels) {
+                // observe any data change
+                if (movieModels != null) {
+                    for (MovieModel movieModel : movieModels) {
+                        //get the data in log
+                        Log.d("TAG", "observeMovieNowPlayingChange onChanged() called with: movieModels = [" + movieModel.getTitle() + "]");
+                        nowPlayingMoviesAdapter.setNowPlayingMovies(movieModels);
+                    }
+                }
+            }
+        });
+    }
+
+    //calling the trending in main-activity
+    private void searchMovieApi(String query, int pageNumber) {
+        movieListViewModel.searchMovieApi(query, pageNumber);
+    }
+
+    //calling the now-playing in main activity
+    private void searchMovieApiNowPlaying(int pageNumber) {
+        movieListViewModel.searchMovieApiNowPlaying(pageNumber);
     }
 
     private void initRecyclerView() {
@@ -65,30 +128,26 @@ public class MovieListActivity extends AppCompatActivity {
                 super.onScrollStateChanged(recyclerView, newState);
                 if (!binding.moviesRecyclerView.canScrollVertically(1)) {
                     //here we need to get another page of data
+                    movieListViewModel.searchNextPage();
                 }
             }
         });
 
     }
 
-    private void observeAnyChange() {
-        movieListViewModel.getMovieModel().observe(this, new Observer<List<MovieModel>>() {
-            @Override
-            public void onChanged(List<MovieModel> movieModels) {
-                //Observe anything
-                for (MovieModel movieModel : movieModels) {
-                    Log.d("TAG", "onChanged() called with: movieModels = [" + movieModel.getTitle() + "]");
-                    movieRecyclerViewAdapter.setmMovies(movieModels);
-                }
-            }
+    private void initViewPager(){
+        nowPlayingMoviesAdapter = new NowPlayingMoviesAdapter(this);
+        binding.moviesViewPager.setAdapter(nowPlayingMoviesAdapter);
+
+        //indicator
+        TabLayoutMediator tabLayoutMediator = new TabLayoutMediator(binding.viewPagerIndicator
+                , binding.moviesViewPager, true, true, (tab, position) -> {
+            //something to do that i am not sure of
         });
+        tabLayoutMediator.attach();
     }
 
-    private void searchMovieApi(String query, int pageNumber) {
-        movieListViewModel.searchMovieApi(query, pageNumber);
-    }
-
-    private void getRetrofitResponse() {
+/*    private void getRetrofitResponse() {
         MovieApi movieApi = MyService.getMovieApi();
         Call<MovieSearchResponse> responseCall = movieApi.searchMovie(
                 Credentials.MY_API_KEY,
@@ -152,5 +211,5 @@ public class MovieListActivity extends AppCompatActivity {
 
             }
         });
-    }
+    }*/
 }
