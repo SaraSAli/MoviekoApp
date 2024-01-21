@@ -4,10 +4,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.movieapplication.adapter.MovieRecyclerViewAdapter;
 import com.example.movieapplication.databinding.ActivityMovieListBinding;
 import com.example.movieapplication.model.MovieModel;
 import com.example.movieapplication.request.MyService;
@@ -28,6 +32,8 @@ import retrofit2.Response;
 public class MovieListActivity extends AppCompatActivity {
 
     private ActivityMovieListBinding binding;
+
+    private MovieRecyclerViewAdapter movieRecyclerViewAdapter;
     private MovieListViewModel movieListViewModel;
 
     @Override
@@ -36,17 +42,30 @@ public class MovieListActivity extends AppCompatActivity {
         binding = ActivityMovieListBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.progressCircular.setVisibility(View.INVISIBLE);
-
 
         movieListViewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
 
+        initRecyclerView();
         observeAnyChange();
 
-        binding.testButton.setOnClickListener(new View.OnClickListener() {
+        searchMovieApi("fast", 1);
+
+    }
+
+    private void initRecyclerView() {
+        movieRecyclerViewAdapter = new MovieRecyclerViewAdapter(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        binding.moviesRecyclerView.setLayoutManager(layoutManager);
+        binding.moviesRecyclerView.setAdapter(movieRecyclerViewAdapter);
+
+        //Pagination support
+        binding.moviesRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
-            public void onClick(View v) {
-                searchMovieApi("Action", 1);
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (!binding.moviesRecyclerView.canScrollVertically(1)) {
+                    //here we need to get another page of data
+                }
             }
         });
 
@@ -59,6 +78,7 @@ public class MovieListActivity extends AppCompatActivity {
                 //Observe anything
                 for (MovieModel movieModel : movieModels) {
                     Log.d("TAG", "onChanged() called with: movieModels = [" + movieModel.getTitle() + "]");
+                    movieRecyclerViewAdapter.setmMovies(movieModels);
                 }
             }
         });

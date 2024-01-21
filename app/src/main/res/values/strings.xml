@@ -2,4 +2,9 @@
     <string name="app_name">Movie Application</string>
     <string name="movie_category">Movie Category</string>
     <string name="movie_duration">Movie Duration</string>
+    <string name="trending">Trending</string>
+    <string name="home">Home</string>
+    <string name="search_movie">Search Movie</string>
+    <string name="best_movies">Best Movies</string>
+    <string name="category">Category</string>
 </resources>
