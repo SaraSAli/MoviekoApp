@@ -7,4 +7,5 @@
     <string name="search_movie">Search Movie</string>
     <string name="best_movies">Best Movies</string>
     <string name="category">Category</string>
+    <string name="now_playing">Now Playing</string>
 </resources>

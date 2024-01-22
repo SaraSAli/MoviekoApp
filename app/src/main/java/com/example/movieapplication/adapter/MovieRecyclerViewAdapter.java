@@ -30,7 +30,8 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieViewHold
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new MovieViewHolder(MovieListItemBinding.inflate(LayoutInflater.from(parent.getContext())));
+        return new MovieViewHolder(
+                MovieListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
     }
 
     @Override
