@@ -21,17 +21,20 @@ public class MovieRecyclerViewAdapter extends RecyclerView.Adapter<MovieViewHold
 
     List<MovieModel> mMovies;
     private Context mContext;
+    private OnMovieListener onMovieListener;
 
 
-    public MovieRecyclerViewAdapter(Context mContext) {
+    public MovieRecyclerViewAdapter(Context mContext, OnMovieListener onMovieListener) {
         this.mContext = mContext;
+        this.onMovieListener = onMovieListener;
     }
 
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new MovieViewHolder(
-                MovieListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+                MovieListItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false)
+                , onMovieListener);
     }
 
     @Override

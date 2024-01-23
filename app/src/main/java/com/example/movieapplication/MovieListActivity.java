@@ -3,6 +3,7 @@ package com.example.movieapplication;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.movieapplication.adapter.MovieRecyclerViewAdapter;
 import com.example.movieapplication.adapter.NowPlayingMoviesAdapter;
+import com.example.movieapplication.adapter.OnMovieListener;
 import com.example.movieapplication.databinding.ActivityMovieListBinding;
 import com.example.movieapplication.databinding.LoadingLayoutBinding;
 import com.example.movieapplication.model.MovieModel;
@@ -32,7 +34,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class MovieListActivity extends AppCompatActivity {
+public class MovieListActivity extends AppCompatActivity implements OnMovieListener {
 
     private ActivityMovieListBinding binding;
     private LoadingLayoutBinding loadingBinding;
@@ -116,7 +118,7 @@ public class MovieListActivity extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        movieRecyclerViewAdapter = new MovieRecyclerViewAdapter(this);
+        movieRecyclerViewAdapter = new MovieRecyclerViewAdapter(this, this::onMovieClick);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         binding.moviesRecyclerView.setLayoutManager(layoutManager);
         binding.moviesRecyclerView.setAdapter(movieRecyclerViewAdapter);
@@ -145,6 +147,17 @@ public class MovieListActivity extends AppCompatActivity {
             //something to do that i am not sure of
         });
         tabLayoutMediator.attach();
+    }
+
+    @Override
+    public void onMovieClick(int position) {
+        Toast.makeText(this, "This movie position is "+position, Toast.LENGTH_SHORT).show();
+        /**
+         *         //sending data to detail intent
+         *         Intent detailIntent = new Intent(MovieListActivity.this, MovieDetailsActivity.class);
+         *         detailIntent.putExtra("movie", adapter.getSelectedMovie(position));
+         *         startActivity(detailIntent);
+         */
     }
 
 /*    private void getRetrofitResponse() {
