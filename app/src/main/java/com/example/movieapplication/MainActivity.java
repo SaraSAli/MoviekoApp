@@ -12,12 +12,13 @@ import com.example.movieapplication.fragments.MovieListFragment;
 import com.example.movieapplication.fragments.SearchFragment;
 import com.example.movieapplication.fragments.TVShowsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.ismaeldivita.chipnavigation.ChipNavigationBar;
 
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements ChipNavigationBar.OnItemSelectedListener {
 
     private ActivityMainBinding binding;
     Map<Integer, Fragment> fragments = new HashMap<>();
@@ -37,19 +38,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         fragments.put(R.id.action_tv_shows, tvShowsFragment);
 
         binding.bottomNavigation.setOnItemSelectedListener(this);
-        binding.bottomNavigation.setSelectedItemId(R.id.action_movies);
+        binding.bottomNavigation.setItemSelected(R.id.action_movies, true);
     }
 
 
     @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        Fragment fragment = fragments.get(item.getItemId());
+    public void onItemSelected(int i) {
+        Fragment fragment = fragments.get(i);
         if (fragment != null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .commit();
-            return true;
         }
-        return false;
     }
 }
