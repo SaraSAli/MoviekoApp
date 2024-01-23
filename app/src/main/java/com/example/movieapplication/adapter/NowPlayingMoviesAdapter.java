@@ -21,17 +21,20 @@ public class NowPlayingMoviesAdapter extends RecyclerView.Adapter<NowPlayingMovi
 
     List<MovieModel> mMovieList;
     private Context mContext;
+    private OnMovieListener onMovieListener;
 
 
-    public NowPlayingMoviesAdapter(Context mContext) {
+    public NowPlayingMoviesAdapter(Context mContext, OnMovieListener onMovieListener) {
         this.mContext = mContext;
+        this.onMovieListener = onMovieListener;
     }
 
     @NonNull
     @Override
     public NowPlayingMoviesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new NowPlayingMoviesViewHolder(
-                ViewPagerItemLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+                ViewPagerItemLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false)
+        , onMovieListener);
     }
 
     @Override

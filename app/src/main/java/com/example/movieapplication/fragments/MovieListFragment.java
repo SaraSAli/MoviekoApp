@@ -1,12 +1,15 @@
-package com.example.movieapplication;
+package com.example.movieapplication.fragments;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,40 +18,37 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.movieapplication.adapter.MovieRecyclerViewAdapter;
 import com.example.movieapplication.adapter.NowPlayingMoviesAdapter;
 import com.example.movieapplication.adapter.OnMovieListener;
-import com.example.movieapplication.databinding.ActivityMovieListBinding;
+import com.example.movieapplication.databinding.FragmentMovieListBinding;
 import com.example.movieapplication.databinding.LoadingLayoutBinding;
 import com.example.movieapplication.model.MovieModel;
-import com.example.movieapplication.request.MyService;
-import com.example.movieapplication.response.MovieSearchResponse;
-import com.example.movieapplication.utils.Credentials;
-import com.example.movieapplication.utils.MovieApi;
 import com.example.movieapplication.viewmodels.MovieListViewModel;
 import com.google.android.material.tabs.TabLayoutMediator;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+public class MovieListFragment extends Fragment implements OnMovieListener {
 
-
-public class MovieListActivity extends AppCompatActivity implements OnMovieListener {
-
-    private ActivityMovieListBinding binding;
+    private FragmentMovieListBinding binding;
     private LoadingLayoutBinding loadingBinding;
 
     private MovieRecyclerViewAdapter movieRecyclerViewAdapter;
     private NowPlayingMoviesAdapter nowPlayingMoviesAdapter;
     private MovieListViewModel movieListViewModel;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityMovieListBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public static MovieListFragment newInstance() {
+        return new MovieListFragment();
+    }
 
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = FragmentMovieListBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
 
         movieListViewModel = new ViewModelProvider(this).get(MovieListViewModel.class);
 
@@ -64,7 +64,7 @@ public class MovieListActivity extends AppCompatActivity implements OnMovieListe
         searchMovieApi("", 1);
         searchMovieApiNowPlaying(1);
 
-        /*movieListViewModel.getLoading().observe(this, loading -> {
+                /*movieListViewModel.getLoading().observe(this, loading -> {
             if (loading) {
                 loadingBinding.loadingAnimation.setVisibility(View.VISIBLE);
             } else {
@@ -76,7 +76,7 @@ public class MovieListActivity extends AppCompatActivity implements OnMovieListe
 
     //observing changes
     private void observeMovieTrendingChange() {
-        movieListViewModel.getMovies().observe(this, new Observer<List<MovieModel>>() {
+        movieListViewModel.getMovies().observe(getViewLifecycleOwner(), new Observer<List<MovieModel>>() {
             @Override
             public void onChanged(List<MovieModel> movieModels) {
                 // observe any data change
@@ -92,7 +92,7 @@ public class MovieListActivity extends AppCompatActivity implements OnMovieListe
     }
 
     private void observeMovieNowPlayingChange() {
-        movieListViewModel.getNowPlaying().observe(this, new Observer<List<MovieModel>>() {
+        movieListViewModel.getNowPlaying().observe(getViewLifecycleOwner(), new Observer<List<MovieModel>>() {
             @Override
             public void onChanged(List<MovieModel> movieModels) {
                 // observe any data change
@@ -118,8 +118,8 @@ public class MovieListActivity extends AppCompatActivity implements OnMovieListe
     }
 
     private void initRecyclerView() {
-        movieRecyclerViewAdapter = new MovieRecyclerViewAdapter(this, this::onMovieClick);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        movieRecyclerViewAdapter = new MovieRecyclerViewAdapter(requireContext(), this::onMovieClick);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(requireContext());
         binding.moviesRecyclerView.setLayoutManager(layoutManager);
         binding.moviesRecyclerView.setAdapter(movieRecyclerViewAdapter);
 
@@ -137,8 +137,8 @@ public class MovieListActivity extends AppCompatActivity implements OnMovieListe
 
     }
 
-    private void initViewPager(){
-        nowPlayingMoviesAdapter = new NowPlayingMoviesAdapter(this);
+    private void initViewPager() {
+        nowPlayingMoviesAdapter = new NowPlayingMoviesAdapter(requireContext(), this::onMovieClick);
         binding.moviesViewPager.setAdapter(nowPlayingMoviesAdapter);
 
         //indicator
@@ -151,7 +151,7 @@ public class MovieListActivity extends AppCompatActivity implements OnMovieListe
 
     @Override
     public void onMovieClick(int position) {
-        Toast.makeText(this, "This movie position is "+position, Toast.LENGTH_SHORT).show();
+        Toast.makeText(requireContext(), "This movie position is " + position, Toast.LENGTH_SHORT).show();
         /**
          *         //sending data to detail intent
          *         Intent detailIntent = new Intent(MovieListActivity.this, MovieDetailsActivity.class);
